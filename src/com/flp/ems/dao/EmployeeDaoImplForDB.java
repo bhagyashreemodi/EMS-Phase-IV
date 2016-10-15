@@ -9,37 +9,39 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
 
+import javax.sql.DataSource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.stereotype.Repository;
+
 import com.flp.ems.domain.Employee;
 import com.sun.corba.se.spi.orbutil.fsm.Guard.Result;
 
 
-
+@Repository("dao")
 public class EmployeeDaoImplForDB implements IEmployeeDao{
 
 	
 	Properties props = new Properties();
 	InputStream propsFile;
 	Connection dbConnection;
+	NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+	@Autowired
+	private DataSource dataSource;
 	@Override
 	public void addEmployee(Employee employee) throws Exception {
 		
-		propsFile = (InputStream) getClass().getClassLoader().getResourceAsStream("/ems.properties");
-		props.load(propsFile);
-		PreparedStatement insertStatement=null;
-		Class.forName("com.mysql.jdbc.Driver");
-		dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/test");
-		insertStatement = dbConnection.prepareStatement(props.getProperty("jdbc.query.insert.employee"));
-		insertStatement.setString(1, employee.getName());
-		insertStatement.setString(2, employee.getKinId());
-		insertStatement.setString(3, employee.getEmailId());
-		insertStatement.setLong(4, employee.getPhoneNumber());
-		insertStatement.setDate(5, new Date(employee.getBirthDate().getTime()));
-		insertStatement.setDate(6,new Date(employee.getJoiningDate().getTime()));
-		insertStatement.setString(7, employee.getAddres());
-		insertStatement.setInt(8, employee.getDepartmentId());
-		insertStatement.setInt(9, employee.getProjectId());
-		insertStatement.setInt(10, employee.getRoleId());
-		insertStatement.executeUpdate();
+		this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(this.dataSource);
+		BeanPropertySqlParameterSource sqlParameterSource;
+		sqlParameterSource = new BeanPropertySqlParameterSource(employee);
+		
+		String insertQuery = "insert into employee (name,kin_id,email_id,phone_number,birth_date,joining_date,address,department_id,project_id,role_id) values(:name,:kinId,:emailId,:phoneNumber,:birthDate,:joiningDate,:addres,:departmentId,:projectId,:roleId)";
+		
+		namedParameterJdbcTemplate.update(insertQuery, sqlParameterSource);
 			
 		
 		
@@ -52,26 +54,13 @@ public class EmployeeDaoImplForDB implements IEmployeeDao{
 	public boolean modifyEmployee(Employee modifyEmployee) throws Exception{
 		
 		if(modifyEmployee != null){
-			Class.forName("com.mysql.jdbc.Driver");
-			propsFile = (InputStream) getClass().getClassLoader().getResourceAsStream("/ems.properties");
-			props.load(propsFile);
-			PreparedStatement selectStatement = null;
-			ResultSet employee = null;
-			dbConnection = DriverManager.getConnection(props.getProperty("jdbc.url"));
-			selectStatement = dbConnection.prepareStatement(props.getProperty("jdbc.query.select.modify"), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
-			selectStatement.setString(1, modifyEmployee.getKinId());
-			employee = selectStatement.executeQuery();
-			employee.next();
-			employee.updateString("name", modifyEmployee.getName());
-			employee.updateLong("phone_number", modifyEmployee.getPhoneNumber());
-			employee.updateDate("birth_date", new Date(modifyEmployee.getBirthDate().getTime()));
-			employee.updateDate("joining_date", new Date(modifyEmployee.getJoiningDate().getTime()));
-			employee.updateString("address", modifyEmployee.getAddres());
-			employee.updateInt("department_id", modifyEmployee.getDepartmentId());
-			employee.updateInt("project_id", modifyEmployee.getProjectId());
-			employee.updateInt("role_id", modifyEmployee.getRoleId());
-			employee.updateRow();
 			
+			this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(this.dataSource);
+			BeanPropertySqlParameterSource sqlParameterSource;
+			sqlParameterSource = new BeanPropertySqlParameterSource(modifyEmployee);
+			
+			String updateQuery = "update employee set name=:name, phone_number=:phoneNumber,birth_date=:birthDate,joining_date=:joiningDate,address=:addres,department_id=:departmentId,project_id=:projectId,role_id=:roleId where kin_id=:kinId";
+			namedParameterJdbcTemplate.update(updateQuery, sqlParameterSource);
 			return true;
 		}
 		else{
@@ -83,18 +72,10 @@ public class EmployeeDaoImplForDB implements IEmployeeDao{
 	public boolean removeEmployee(String kinId) throws Exception {
 		
 		if(kinId != null){
-			
-			propsFile = (InputStream) getClass().getClassLoader().getResourceAsStream("/ems.properties");
-			props.load(propsFile);
-			PreparedStatement deleteStatement=null;
-			Class.forName("com.mysql.jdbc.Driver");
-			dbConnection = DriverManager.getConnection(props.getProperty("jdbc.url"));
-			deleteStatement = dbConnection.prepareStatement(props.getProperty("jdbc.query.delete.employee"));
-			deleteStatement.setString(1, kinId);
-			deleteStatement.executeUpdate();
-				
-				
-				
+			this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(this.dataSource);
+			String updateQuery = "delete from employee where kin_id=:kinId";
+			SqlParameterSource sqlParameterSource = new MapSqlParameterSource("kinId",kinId);
+			namedParameterJdbcTemplate.update(updateQuery, sqlParameterSource);
 			
 			return true;
 		}
@@ -110,39 +91,20 @@ public class EmployeeDaoImplForDB implements IEmployeeDao{
 	public ArrayList<Employee> searchEmployee(Employee employee) throws Exception {
 		
 		ArrayList<Employee> empl = new ArrayList<Employee>();
-		propsFile = (InputStream) getClass().getClassLoader().getResourceAsStream("/ems.properties");
-		props.load(propsFile);
-		Class.forName("com.mysql.jdbc.Driver");
-		PreparedStatement selectStatement = null;
-		dbConnection = DriverManager.getConnection(props.getProperty("jdbc.url"));
-		ResultSet selectResult = null;
+		String searchQuery;
+		this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(this.dataSource);
+		SqlParameterSource sqlParameterSource = new BeanPropertySqlParameterSource(employee);
 		if(employee.getKinId() != null){
-				selectStatement = dbConnection.prepareStatement("select * from employee where kin_id=?");
-				selectStatement.setString(1, employee.getKinId());
+			searchQuery = "select * from employee where kin_id=:kinId";
+			empl= (ArrayList<Employee>) namedParameterJdbcTemplate.queryForList(searchQuery, sqlParameterSource, Employee.class);
 		}
 		else if(employee.getEmailId() != null){
-			selectStatement = dbConnection.prepareStatement("select * from employee where email_id=?");
-			selectStatement.setString(1, employee.getEmailId());
+			searchQuery = "select * from employee where email_id=:emailId";
+			empl= (ArrayList<Employee>) namedParameterJdbcTemplate.queryForList(searchQuery, sqlParameterSource, Employee.class);
 		}
 		else{
-			selectStatement = dbConnection.prepareStatement("select * from employee where name=?");
-			selectStatement.setString(1, employee.getName());
-		}
-		selectResult = selectStatement.executeQuery();
-		while(selectResult.next()){
-			Employee tempEmployee = new Employee();
-			tempEmployee.setName(selectResult.getString("name"));
-			tempEmployee.setKinId(selectResult.getString("kin_id"));
-			tempEmployee.setEmailId(selectResult.getString("email_id"));
-			tempEmployee.setPhoneNumber(Long.parseLong(selectResult.getString("phone_number")));
-			tempEmployee.setBirthDate(selectResult.getDate("birth_date"));
-			tempEmployee.setJoiningDate(selectResult.getDate("joining_date"));
-			tempEmployee.setAddres(selectResult.getString("address"));
-			tempEmployee.setDepartmentId(selectResult.getInt("department_id"));
-			tempEmployee.setProjectId(selectResult.getInt("project_id"));
-			tempEmployee.setRoleId(selectResult.getInt("role_id"));
-			empl.add(tempEmployee);
-				
+			searchQuery = "select * from employee where name=:name";
+			empl= (ArrayList<Employee>) namedParameterJdbcTemplate.queryForList(searchQuery, sqlParameterSource, Employee.class);
 		}
 		
 		return empl;
@@ -218,8 +180,10 @@ public class EmployeeDaoImplForDB implements IEmployeeDao{
 		PreparedStatement selectStatement = dbConnection.prepareStatement("select * from employee");
 		ResultSet result = selectStatement.executeQuery();
 		int count = 0;
-		result.last();
-		count = result.getInt("employee_id");
+		if(result.next()){
+			result.last();
+			count = result.getInt("employee_id");
+		}
 		return count;		
 	}
 	

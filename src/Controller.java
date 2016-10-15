@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -10,7 +11,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+
 import com.flp.ems.service.EmployeeServiceImpl;
+
 @WebServlet("/controller")
 public class Controller extends HttpServlet{
 
@@ -21,9 +29,8 @@ public class Controller extends HttpServlet{
 	private String ACTION_SEEALL = "seeAll";
 	private String ACTION_GETALL = "getAll";
 	private String ACTION_REMOVE = "remove";
-	private EmployeeServiceImpl employeeService = new EmployeeServiceImpl();
-	
-	
+	/*private EmployeeServiceImpl employeeService = new EmployeeServiceImpl();*/
+	private EmployeeServiceImpl employeeService;
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		processRequest(request, response);
@@ -33,6 +40,9 @@ public class Controller extends HttpServlet{
 		processRequest(request, response);
 	}
 	private void processRequest(HttpServletRequest request, HttpServletResponse response){
+		ServletContext application = getServletContext();
+		WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(application);
+		employeeService = (EmployeeServiceImpl)ctx.getBean("service");
 		action = request.getParameter("action");
 		if(action.equalsIgnoreCase(ACTION_CREATE)){
 			

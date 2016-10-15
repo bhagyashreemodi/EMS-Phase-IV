@@ -9,14 +9,20 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Scanner;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
+
 import com.flp.ems.dao.EmployeeDaoImplForDB;
 import com.flp.ems.domain.Employee;
-
+@Service("service")
 public class EmployeeServiceImpl implements IEmployeeService{
 
 	
-	EmployeeDaoImplForDB employees = new EmployeeDaoImplForDB();
-	
+	//EmployeeDaoImplForDB employees = new EmployeeDaoImplForDB();
+	@Autowired
+	EmployeeDaoImplForDB employees;
 	@Override
 	public void addEmployee(HashMap<String, String> employeeInfo) throws Exception {
 		
