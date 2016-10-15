@@ -13,6 +13,7 @@ import javax.sql.DataSource;
 import javax.swing.tree.TreePath;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -98,69 +99,15 @@ public class EmployeeDaoImplForDB implements IEmployeeDao{
 		SqlParameterSource sqlParameterSource = new BeanPropertySqlParameterSource(employee);
 		if(employee.getKinId() != null){
 			searchQuery = "select * from employee where kin_id=:kinId";
-			empl= (ArrayList<Employee>) namedParameterJdbcTemplate.query(searchQuery, sqlParameterSource,new RowMapper<Employee>() {
-
-				@Override
-				public Employee mapRow(ResultSet selectResult, int arg1) throws SQLException {
-					// TODO Auto-generated method stub
-					Employee tempEmployee = new Employee();
-					tempEmployee.setName(selectResult.getString("name"));
-					tempEmployee.setKinId(selectResult.getString("kin_id"));
-					tempEmployee.setEmailId(selectResult.getString("email_id"));
-					tempEmployee.setPhoneNumber(selectResult.getLong("phone_number"));
-					tempEmployee.setBirthDate(selectResult.getDate("birth_date"));
-					tempEmployee.setJoiningDate(selectResult.getDate("joining_date"));
-					tempEmployee.setAddres(selectResult.getString("address"));
-					tempEmployee.setDepartmentId(selectResult.getInt("department_id"));
-					tempEmployee.setProjectId(selectResult.getInt("project_id"));
-					tempEmployee.setRoleId(selectResult.getInt("role_id"));
-					return tempEmployee;
-				}
-			});
+			empl= (ArrayList<Employee>) namedParameterJdbcTemplate.query(searchQuery, sqlParameterSource,new Employee());
 		}
 		else if(employee.getEmailId() != null){
 			searchQuery = "select * from employee where email_id=:emailId";
-			empl= (ArrayList<Employee>) namedParameterJdbcTemplate.query(searchQuery, sqlParameterSource,new RowMapper<Employee>() {
-
-				@Override
-				public Employee mapRow(ResultSet selectResult, int arg1) throws SQLException {
-					// TODO Auto-generated method stub
-					Employee tempEmployee = new Employee();
-					tempEmployee.setName(selectResult.getString("name"));
-					tempEmployee.setKinId(selectResult.getString("kin_id"));
-					tempEmployee.setEmailId(selectResult.getString("email_id"));
-					tempEmployee.setPhoneNumber(selectResult.getLong("phone_number"));
-					tempEmployee.setBirthDate(selectResult.getDate("birth_date"));
-					tempEmployee.setJoiningDate(selectResult.getDate("joining_date"));
-					tempEmployee.setAddres(selectResult.getString("address"));
-					tempEmployee.setDepartmentId(selectResult.getInt("department_id"));
-					tempEmployee.setProjectId(selectResult.getInt("project_id"));
-					tempEmployee.setRoleId(selectResult.getInt("role_id"));
-					return tempEmployee;
-				}
-			});
+			empl= (ArrayList<Employee>) namedParameterJdbcTemplate.query(searchQuery, sqlParameterSource,new Employee());
 		}
 		else{
 			searchQuery = "select * from employee where name=:name";
-			empl= (ArrayList<Employee>) namedParameterJdbcTemplate.query(searchQuery, sqlParameterSource,new RowMapper<Employee>() {
-
-				@Override
-				public Employee mapRow(ResultSet selectResult, int arg1) throws SQLException {
-					// TODO Auto-generated method stub
-					Employee tempEmployee = new Employee();
-					tempEmployee.setName(selectResult.getString("name"));
-					tempEmployee.setKinId(selectResult.getString("kin_id"));
-					tempEmployee.setEmailId(selectResult.getString("email_id"));
-					tempEmployee.setPhoneNumber(selectResult.getLong("phone_number"));
-					tempEmployee.setBirthDate(selectResult.getDate("birth_date"));
-					tempEmployee.setJoiningDate(selectResult.getDate("joining_date"));
-					tempEmployee.setAddres(selectResult.getString("address"));
-					tempEmployee.setDepartmentId(selectResult.getInt("department_id"));
-					tempEmployee.setProjectId(selectResult.getInt("project_id"));
-					tempEmployee.setRoleId(selectResult.getInt("role_id"));
-					return tempEmployee;
-				}
-			});
+			empl= (ArrayList<Employee>) namedParameterJdbcTemplate.query(searchQuery, sqlParameterSource,new Employee());
 		}
 		
 		return empl;
@@ -174,25 +121,7 @@ public class EmployeeDaoImplForDB implements IEmployeeDao{
 		String searchQuery;
 		this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(this.dataSource);
 		searchQuery = "select * from employee";
-		employees= (ArrayList<Employee>) namedParameterJdbcTemplate.query(searchQuery,new RowMapper<Employee>() {
-
-				@Override
-				public Employee mapRow(ResultSet selectResult, int arg1) throws SQLException {
-					// TODO Auto-generated method stub
-					Employee tempEmployee = new Employee();
-					tempEmployee.setName(selectResult.getString("name"));
-					tempEmployee.setKinId(selectResult.getString("kin_id"));
-					tempEmployee.setEmailId(selectResult.getString("email_id"));
-					tempEmployee.setPhoneNumber(selectResult.getLong("phone_number"));
-					tempEmployee.setBirthDate(selectResult.getDate("birth_date"));
-					tempEmployee.setJoiningDate(selectResult.getDate("joining_date"));
-					tempEmployee.setAddres(selectResult.getString("address"));
-					tempEmployee.setDepartmentId(selectResult.getInt("department_id"));
-					tempEmployee.setProjectId(selectResult.getInt("project_id"));
-					tempEmployee.setRoleId(selectResult.getInt("role_id"));
-					return tempEmployee;
-				}
-			});
+		employees= (ArrayList<Employee>) namedParameterJdbcTemplate.query(searchQuery,new Employee());
 		
 		return employees;
 		
@@ -203,30 +132,12 @@ public class EmployeeDaoImplForDB implements IEmployeeDao{
 	@Override
 	public Employee getEmpForModification(String kinId) throws Exception{
 		
-		propsFile = (InputStream) getClass().getClassLoader().getResourceAsStream("/ems.properties");
-		props.load(propsFile);
-		PreparedStatement selectStatement = null;
-		
-		ResultSet selectResult = null;
-		Employee tempEmployee = new Employee();
-		Class.forName("com.mysql.jdbc.Driver");
-		dbConnection = DriverManager.getConnection(props.getProperty("jdbc.url"));
-		selectStatement = dbConnection.prepareStatement("select * from employee where kin_id=?");
-		selectStatement.setString(1, kinId);
-		selectResult = selectStatement.executeQuery();
-		selectResult.next();
-		tempEmployee.setName(selectResult.getString("name"));
-		tempEmployee.setKinId(selectResult.getString("kin_id"));
-		tempEmployee.setEmailId(selectResult.getString("email_id"));
-		tempEmployee.setPhoneNumber(selectResult.getLong("phone_number"));
-		tempEmployee.setBirthDate(selectResult.getDate("birth_date"));
-		tempEmployee.setJoiningDate(selectResult.getDate("joining_date"));
-		tempEmployee.setAddres(selectResult.getString("address"));
-		tempEmployee.setDepartmentId(selectResult.getInt("department_id"));
-		tempEmployee.setProjectId(selectResult.getInt("project_id"));
-		tempEmployee.setRoleId(selectResult.getInt("role_id"));
-		
-		return tempEmployee;
+		String searchQuery;
+		this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(this.dataSource);
+		searchQuery = "select * from employee where kin_id=:kinId";
+		SqlParameterSource sqlParameterSource = new MapSqlParameterSource("kinId",kinId);
+		Employee empl= (Employee) namedParameterJdbcTemplate.query(searchQuery, sqlParameterSource,new Employee());
+		return empl;
 		
 	}
 

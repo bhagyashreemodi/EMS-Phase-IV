@@ -1,8 +1,12 @@
 package com.flp.ems.domain;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
 
-public class Employee implements Cloneable{
+import org.springframework.jdbc.core.RowMapper;
+
+public class Employee implements Cloneable,RowMapper<Employee>{
 
 //	private static long employeeId;
 	private long phoneNumber;
@@ -124,4 +128,21 @@ public class Employee implements Cloneable{
 			
 			return super.clone();
 		}
+
+
+	@Override
+	public Employee mapRow(ResultSet selectResult, int arg1) throws SQLException {
+		Employee tempEmployee = new Employee();
+		tempEmployee.setName(selectResult.getString("name"));
+		tempEmployee.setKinId(selectResult.getString("kin_id"));
+		tempEmployee.setEmailId(selectResult.getString("email_id"));
+		tempEmployee.setPhoneNumber(selectResult.getLong("phone_number"));
+		tempEmployee.setBirthDate(selectResult.getDate("birth_date"));
+		tempEmployee.setJoiningDate(selectResult.getDate("joining_date"));
+		tempEmployee.setAddres(selectResult.getString("address"));
+		tempEmployee.setDepartmentId(selectResult.getInt("department_id"));
+		tempEmployee.setProjectId(selectResult.getInt("project_id"));
+		tempEmployee.setRoleId(selectResult.getInt("role_id"));
+		return tempEmployee;
+	}
 }
