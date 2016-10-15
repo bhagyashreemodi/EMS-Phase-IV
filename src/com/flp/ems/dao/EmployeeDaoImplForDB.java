@@ -10,8 +10,10 @@ import java.util.HashMap;
 import java.util.Properties;
 
 import javax.sql.DataSource;
+import javax.swing.tree.TreePath;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -96,11 +98,29 @@ public class EmployeeDaoImplForDB implements IEmployeeDao{
 		SqlParameterSource sqlParameterSource = new BeanPropertySqlParameterSource(employee);
 		if(employee.getKinId() != null){
 			searchQuery = "select * from employee where kin_id=:kinId";
-			empl= (ArrayList<Employee>) namedParameterJdbcTemplate.queryForList(searchQuery, sqlParameterSource, Employee.class);
+			empl= (ArrayList<Employee>) namedParameterJdbcTemplate.query(searchQuery, sqlParameterSource,new RowMapper<Employee>() {
+
+				@Override
+				public Employee mapRow(ResultSet rs, int arg1) throws SQLException {
+					// TODO Auto-generated method stub
+					Employee emp = new Employee();
+					emp.setAddres(rs.getString("address"));
+					return emp;
+				}
+			});
 		}
 		else if(employee.getEmailId() != null){
 			searchQuery = "select * from employee where email_id=:emailId";
-			empl= (ArrayList<Employee>) namedParameterJdbcTemplate.queryForList(searchQuery, sqlParameterSource, Employee.class);
+			empl= (ArrayList<Employee>) namedParameterJdbcTemplate.query(searchQuery, sqlParameterSource,new RowMapper<Employee>() {
+
+				@Override
+				public Employee mapRow(ResultSet rs, int arg1) throws SQLException {
+					// TODO Auto-generated method stub
+					Employee emp = new Employee();
+					emp.setAddres(rs.getString("address"));
+					return emp;
+				}
+			});
 		}
 		else{
 			searchQuery = "select * from employee where name=:name";
