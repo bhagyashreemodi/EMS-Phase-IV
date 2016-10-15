@@ -101,11 +101,20 @@ public class EmployeeDaoImplForDB implements IEmployeeDao{
 			empl= (ArrayList<Employee>) namedParameterJdbcTemplate.query(searchQuery, sqlParameterSource,new RowMapper<Employee>() {
 
 				@Override
-				public Employee mapRow(ResultSet rs, int arg1) throws SQLException {
+				public Employee mapRow(ResultSet selectResult, int arg1) throws SQLException {
 					// TODO Auto-generated method stub
-					Employee emp = new Employee();
-					emp.setAddres(rs.getString("address"));
-					return emp;
+					Employee tempEmployee = new Employee();
+					tempEmployee.setName(selectResult.getString("name"));
+					tempEmployee.setKinId(selectResult.getString("kin_id"));
+					tempEmployee.setEmailId(selectResult.getString("email_id"));
+					tempEmployee.setPhoneNumber(selectResult.getLong("phone_number"));
+					tempEmployee.setBirthDate(selectResult.getDate("birth_date"));
+					tempEmployee.setJoiningDate(selectResult.getDate("joining_date"));
+					tempEmployee.setAddres(selectResult.getString("address"));
+					tempEmployee.setDepartmentId(selectResult.getInt("department_id"));
+					tempEmployee.setProjectId(selectResult.getInt("project_id"));
+					tempEmployee.setRoleId(selectResult.getInt("role_id"));
+					return tempEmployee;
 				}
 			});
 		}
@@ -114,17 +123,44 @@ public class EmployeeDaoImplForDB implements IEmployeeDao{
 			empl= (ArrayList<Employee>) namedParameterJdbcTemplate.query(searchQuery, sqlParameterSource,new RowMapper<Employee>() {
 
 				@Override
-				public Employee mapRow(ResultSet rs, int arg1) throws SQLException {
+				public Employee mapRow(ResultSet selectResult, int arg1) throws SQLException {
 					// TODO Auto-generated method stub
-					Employee emp = new Employee();
-					emp.setAddres(rs.getString("address"));
-					return emp;
+					Employee tempEmployee = new Employee();
+					tempEmployee.setName(selectResult.getString("name"));
+					tempEmployee.setKinId(selectResult.getString("kin_id"));
+					tempEmployee.setEmailId(selectResult.getString("email_id"));
+					tempEmployee.setPhoneNumber(selectResult.getLong("phone_number"));
+					tempEmployee.setBirthDate(selectResult.getDate("birth_date"));
+					tempEmployee.setJoiningDate(selectResult.getDate("joining_date"));
+					tempEmployee.setAddres(selectResult.getString("address"));
+					tempEmployee.setDepartmentId(selectResult.getInt("department_id"));
+					tempEmployee.setProjectId(selectResult.getInt("project_id"));
+					tempEmployee.setRoleId(selectResult.getInt("role_id"));
+					return tempEmployee;
 				}
 			});
 		}
 		else{
 			searchQuery = "select * from employee where name=:name";
-			empl= (ArrayList<Employee>) namedParameterJdbcTemplate.queryForList(searchQuery, sqlParameterSource, Employee.class);
+			empl= (ArrayList<Employee>) namedParameterJdbcTemplate.query(searchQuery, sqlParameterSource,new RowMapper<Employee>() {
+
+				@Override
+				public Employee mapRow(ResultSet selectResult, int arg1) throws SQLException {
+					// TODO Auto-generated method stub
+					Employee tempEmployee = new Employee();
+					tempEmployee.setName(selectResult.getString("name"));
+					tempEmployee.setKinId(selectResult.getString("kin_id"));
+					tempEmployee.setEmailId(selectResult.getString("email_id"));
+					tempEmployee.setPhoneNumber(selectResult.getLong("phone_number"));
+					tempEmployee.setBirthDate(selectResult.getDate("birth_date"));
+					tempEmployee.setJoiningDate(selectResult.getDate("joining_date"));
+					tempEmployee.setAddres(selectResult.getString("address"));
+					tempEmployee.setDepartmentId(selectResult.getInt("department_id"));
+					tempEmployee.setProjectId(selectResult.getInt("project_id"));
+					tempEmployee.setRoleId(selectResult.getInt("role_id"));
+					return tempEmployee;
+				}
+			});
 		}
 		
 		return empl;
@@ -135,28 +171,29 @@ public class EmployeeDaoImplForDB implements IEmployeeDao{
 	public ArrayList getAllEmployee() throws Exception{
 		
 		ArrayList<Employee> employees = new ArrayList<Employee>();
-		propsFile = (InputStream) getClass().getClassLoader().getResourceAsStream("/ems.properties");
-		props.load(propsFile);
-		PreparedStatement selectStatement = null;
-		ResultSet selectResult = null;
-		Class.forName("com.mysql.jdbc.Driver");
-		dbConnection = DriverManager.getConnection(props.getProperty("jdbc.url"));
-		selectStatement=dbConnection.prepareStatement(props.getProperty("jdbc.query.select.all.employee"));
-		selectResult=selectStatement.executeQuery();
-		while(selectResult.next()){
-			Employee tempEmployee = new Employee();
-			tempEmployee.setName(selectResult.getString("name"));
-			tempEmployee.setKinId(selectResult.getString("kin_id"));
-			tempEmployee.setEmailId(selectResult.getString("email_id"));
-			tempEmployee.setPhoneNumber(selectResult.getLong("phone_number"));
-			tempEmployee.setBirthDate(selectResult.getDate("birth_date"));
-			tempEmployee.setJoiningDate(selectResult.getDate("joining_date"));
-			tempEmployee.setAddres(selectResult.getString("address"));
-			tempEmployee.setDepartmentId(selectResult.getInt("department_id"));
-			tempEmployee.setProjectId(selectResult.getInt("project_id"));
-			tempEmployee.setRoleId(selectResult.getInt("role_id"));
-			employees.add(tempEmployee);
-		}
+		String searchQuery;
+		this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(this.dataSource);
+		searchQuery = "select * from employee";
+		employees= (ArrayList<Employee>) namedParameterJdbcTemplate.query(searchQuery,new RowMapper<Employee>() {
+
+				@Override
+				public Employee mapRow(ResultSet selectResult, int arg1) throws SQLException {
+					// TODO Auto-generated method stub
+					Employee tempEmployee = new Employee();
+					tempEmployee.setName(selectResult.getString("name"));
+					tempEmployee.setKinId(selectResult.getString("kin_id"));
+					tempEmployee.setEmailId(selectResult.getString("email_id"));
+					tempEmployee.setPhoneNumber(selectResult.getLong("phone_number"));
+					tempEmployee.setBirthDate(selectResult.getDate("birth_date"));
+					tempEmployee.setJoiningDate(selectResult.getDate("joining_date"));
+					tempEmployee.setAddres(selectResult.getString("address"));
+					tempEmployee.setDepartmentId(selectResult.getInt("department_id"));
+					tempEmployee.setProjectId(selectResult.getInt("project_id"));
+					tempEmployee.setRoleId(selectResult.getInt("role_id"));
+					return tempEmployee;
+				}
+			});
+		
 		return employees;
 		
 		
