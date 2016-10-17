@@ -5,7 +5,7 @@
 <html>
 <title>Home</title>
 <link rel="stylesheet" href="index.css">
-<!-- <link rel="stylesheet" href="style.css"> -->
+<link rel="stylesheet" href="style.css">
 </head>
 <!-- <script type="text/javascript">
 	function confirm() {

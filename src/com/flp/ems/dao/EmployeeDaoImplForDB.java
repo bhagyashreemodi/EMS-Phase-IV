@@ -143,15 +143,11 @@ public class EmployeeDaoImplForDB implements IEmployeeDao{
 
 	
 	public int getNumberOfEmployees()throws Exception{
-		Class.forName("com.mysql.jdbc.Driver");
-		dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/test");
-		PreparedStatement selectStatement = dbConnection.prepareStatement("select * from employee");
-		ResultSet result = selectStatement.executeQuery();
 		int count = 0;
-		if(result.next()){
-			result.last();
-			count = result.getInt("employee_id");
-		}
+		/*String searchQuery;
+		this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(this.dataSource);
+		searchQuery = "select employee_id.nextVal from employee";
+		Integer count = namedParameterJdbcTemplate.queryForObject(searchQuery, requiredType)(searchQuery);*/
 		return count;		
 	}
 	
