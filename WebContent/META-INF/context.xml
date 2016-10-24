@@ -12,7 +12,8 @@
               type="javax.sql.DataSource" maxActive="100" 
               maxIdle="30" maxWait="10000"
               driverClassName="com.mysql.jdbc.Driver"
-              url="jdbc:mysql://localhost:3306/test"/>
+              url="jdbc:mysql://localhost:3306/test"
+              username="root" password="modi1234"/>
               
 <!--
 This resource is for ORACLE DATABASE. 
